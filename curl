@@ -1,0 +1,8 @@
+curl -i -X POST \
+   -H "Content-Type:application/x-www-form-urlencoded" \
+   -d "grant_type=password" \
+   -d "client_id=3MVG9S6qnsIUe5wCLCT_QegxuMnskGt17bI3VwTaCw4ize7rlX4CvEYxASZlMuJryRdZ36px1tdBHf8u9Elaq" \
+   -d "client_secret=2D1AC3D4B05396FD55145D7E0ACC6D2AEA16014143CA2434C635EDE6BCD8459C" \
+   -d "username=corpsys.integration@barclays.com.ucrm.qa" \
+   -d "password=Integration@2024YourSecurityToken" \
+'https://test.salesforce.com/services/oauth2/token'
