@@ -19,10 +19,16 @@ def get_access_token():
             'Content-Type': 'application/x-www-form-urlencoded'
         }
 
-        conn.request("POST", "/services/oauth2/token", params, headers)
+        print(f"Request parameters: {params}")
 
+        conn.request("POST", "/services/oauth2/token", params, headers)
         response = conn.getresponse()
+
+        print(f"HTTP Response Status: {response.status}")
+        print(f"HTTP Response Reason: {response.reason}")
+
         data = response.read()
+        print(f"Response Data: {data.decode('utf-8')}")
 
         auth_response = json.loads(data.decode('utf-8'))
 
@@ -35,37 +41,12 @@ def get_access_token():
     except Exception as e:
         print(f"Error during authentication: {e}")
 
-def fetch_event_log(access_token):
-    print("Fetching event log...")
-    try:
-        log_file_url = '/services/data/v62.0/sobjects/EventLogFile/0AT8C000004jlIUWAY/LogFile'
-
-        conn = http.client.HTTPSConnection("barclays-ucrm--qa.sandbox.my.salesforce.com")
-
-        headers = {
-            'Authorization': f'Bearer {access_token}'
-        }
-
-        conn.request("GET", log_file_url, headers=headers)
-
-        response = conn.getresponse()
-        log_data = response.read()
-
-        if response.status == 200:
-            with open('event_log.csv', 'wb') as file:
-                file.write(log_data)
-            print("Event Log CSV Content Fetched and saved as event_log.csv")
-        else:
-            print(f"Failed to fetch event log: {response.status}, {response.reason}")
-    except Exception as e:
-        print(f"Error during fetching event log: {e}")
-
 def main():
     try:
         access_token = get_access_token()
         if access_token:
             print(f"Access Token: {access_token}")
-            fetch_event_log(access_token)
+            # Proceed to fetch event log if necessary
         else:
             print("No access token retrieved.")
     except Exception as e:
