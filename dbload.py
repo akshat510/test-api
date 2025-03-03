@@ -14,12 +14,12 @@ try:
     cursor = conn.cursor()
     cursor.fast_executemany = True  
 
-    for chunk in pd.read_csv(csv_file_path, chunksize=chunk_size):
+    for chunk in pd.read_csv(csv_file_path, chunksize=chunk_size, encoding="utf-8", errors="replace"):
         try:
             data_tuples = [tuple(row) for row in chunk.itertuples(index=False, name=None)]
 
-            # **Fix: Wrap column names in square brackets**
-            columns = ", ".join([f"[{col}]" for col in chunk.columns])  
+            # Fix: Ensure column names match SQL table and wrap in brackets
+            columns = ", ".join([f"[{col.strip()}]" for col in chunk.columns])  
             placeholders = ", ".join(["?"] * len(chunk.columns))
             sql = f"INSERT INTO {table_name} ({columns}) VALUES ({placeholders})"
 
@@ -39,3 +39,4 @@ finally:
         conn.close()
 
 print("CSV data successfully loaded into SQL Server table.")
+
