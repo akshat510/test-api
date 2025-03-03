@@ -1,7 +1,7 @@
 import pandas as pd
 import pyodbc
 
-csv_file_path = "D:\\CP\\data1.csv"  
+csv_file_path = "D:\\CP\\data1.csv"
 server = "LAPTOP-NC6GQ5MF"
 database = "master"
 table_name = "dbo.tmpEmp"
@@ -14,17 +14,19 @@ try:
     cursor = conn.cursor()
     cursor.fast_executemany = True  
 
-    for chunk in pd.read_csv(csv_file_path, chunksize=chunk_size, encoding="utf-8", errors="replace"):
+    for chunk in pd.read_csv(csv_file_path, chunksize=chunk_size, encoding="ISO-8859-1"):
         try:
-            data_tuples = [tuple(row) for row in chunk.itertuples(index=False, name=None)]
+            for col in chunk.columns:
+                chunk[col] = pd.to_numeric(chunk[col], errors="ignore")  # Avoid numeric range issues
 
-            # Fix: Ensure column names match SQL table and wrap in brackets
-            columns = ", ".join([f"[{col.strip()}]" for col in chunk.columns])  
+            data_tuples = [tuple(row) for row in chunk.itertuples(index=False, name=None)]
+            columns = ", ".join([f"[{col.strip()}]" for col in chunk.columns])
             placeholders = ", ".join(["?"] * len(chunk.columns))
             sql = f"INSERT INTO {table_name} ({columns}) VALUES ({placeholders})"
 
             cursor.executemany(sql, data_tuples)
             conn.commit()
+            print("CSV data successfully loaded into SQL Server table.")  # Only prints on success
         except Exception as e:
             print(f"Error inserting chunk: {e}")
             conn.rollback()
@@ -38,5 +40,4 @@ finally:
     if 'conn' in locals():
         conn.close()
 
-print("CSV data successfully loaded into SQL Server table.")
 
